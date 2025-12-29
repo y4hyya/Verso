@@ -3,7 +3,14 @@ import { vocabulary } from './data/vocabulary';
 import type { VocabularyCard } from './data/vocabulary';
 import { Flashcard } from './components/Flashcard';
 import { CompletionScreen } from './components/CompletionScreen';
+import { UndoButton } from './components/UndoButton';
 import './App.css';
+
+interface HistoryEntry {
+  cardPool: VocabularyCard[];
+  currentIndex: number;
+  action: 'know' | 'dontKnow';
+}
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -17,6 +24,7 @@ function shuffleArray<T>(array: T[]): T[] {
 function App() {
   const [cardPool, setCardPool] = useState<VocabularyCard[]>(() => shuffleArray(vocabulary));
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const totalCards = vocabulary.length;
 
   const currentCard = cardPool[currentIndex];
@@ -31,6 +39,13 @@ function App() {
   }, []);
 
   const handleKnow = useCallback(() => {
+    // Save current state to history before changing
+    setHistory(prev => [...prev, {
+      cardPool: [...cardPool],
+      currentIndex,
+      action: 'know'
+    }]);
+
     const newPool = cardPool.filter((_, index) => index !== currentIndex);
     setCardPool(newPool);
     if (newPool.length > 0) {
@@ -39,15 +54,33 @@ function App() {
   }, [cardPool, currentIndex, getRandomIndex]);
 
   const handleDontKnow = useCallback(() => {
+    // Save current state to history before changing
+    setHistory(prev => [...prev, {
+      cardPool: [...cardPool],
+      currentIndex,
+      action: 'dontKnow'
+    }]);
+
     setCurrentIndex(getRandomIndex(cardPool.length, currentIndex));
-  }, [cardPool.length, currentIndex, getRandomIndex]);
+  }, [cardPool, currentIndex, getRandomIndex]);
+
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return;
+
+    const lastEntry = history[history.length - 1];
+    setCardPool(lastEntry.cardPool);
+    setCurrentIndex(lastEntry.currentIndex);
+    setHistory(prev => prev.slice(0, -1));
+  }, [history]);
 
   const handleRestart = useCallback(() => {
     setCardPool(shuffleArray(vocabulary));
     setCurrentIndex(0);
+    setHistory([]);
   }, []);
 
   const isComplete = cardPool.length === 0;
+  const canUndo = history.length > 0;
 
   return (
     <div className="app">
@@ -70,6 +103,8 @@ function App() {
           />
         )}
       </main>
+
+      <UndoButton onClick={handleUndo} disabled={!canUndo} />
     </div>
   );
 }

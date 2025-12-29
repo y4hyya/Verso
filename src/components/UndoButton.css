@@ -1,0 +1,61 @@
+.undo-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.undo-button:hover:not(:disabled) {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(34, 211, 187, 0.3);
+  color: var(--color-accent, #22d3bb);
+  transform: scale(1.08);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(34, 211, 187, 0.15);
+}
+
+.undo-button:active:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.undo-button.disabled,
+.undo-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.undo-button svg {
+  transition: transform 0.25s ease;
+}
+
+.undo-button:hover:not(:disabled) svg {
+  transform: rotate(-15deg);
+}
+
+/* Responsive positioning */
+@media (max-width: 480px) {
+  .undo-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+  }
+}
